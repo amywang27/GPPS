@@ -1,2 +1,2 @@
 # GPPS
-This template includes data cleaning and decision tree codes for large patient care survey
+Data cleaning and decision tree codes for a large patient care dataset
