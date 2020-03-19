@@ -195,15 +195,15 @@ install.packages("rpart")
 library(rpart)
 library(rpart.plot)
 
-#tree 1a: Poor overall GP exp
+#tree 1a: overall GP exp
 
 fit <- rpart(GoodOverallExpOfGPpractice ~ whiteornot + dep2 + age65over + num_LTC + reducedADL + male + 
                confidentmanagingIssuesfromConditions + plan + easyToPhone + preferredgp + GoodExpMakingAppt +
                GPGoodInGivingEnoughTime + GPGoodInListening + GPGoodInCaring + GPrecognizedMHneeds +
                PatientWasInvolvedinDecisionsAboutCare,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 200, minbucket = 180, cp=0.001))
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for Good Overall GP Practice Experience")
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for Good Overall GP Practice Experience")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for Overall GP Practice Experience")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for Overall GP Practice Experience")
 
 
 #tree 1a-exclude NA from tree
@@ -224,8 +224,8 @@ fit <- rpart(GoodOverallExpOfGPpractice ~ whiteornot + dep2 + age65over + num_LT
                GPGoodInGivingEnoughTime + GPGoodInListening + GPGoodInCaring + GPrecognizedMHneeds +
                PatientWasInvolvedinDecisionsAboutCare,
              method="class", data=tree1a, model=TRUE, weights = wt_new, control = rpart.control (minsplit= 200, minbucket = 180, cp=0.001))
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for Good Overall GP Practice Experience")
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for Good Overall GP Practice Experience")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for Overall GP Practice Experience")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for Overall GP Practice Experience")
 
 #tree 1b: Needs not met at last GP appt
 
@@ -287,8 +287,8 @@ rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Clas
 fit <- rpart(GPGoodInGivingEnoughTime ~ num_LTC + MH  + GPrecognizedMHneeds +  age65over + whiteornot + plan + dep2 + smoke + reducedADL + 
                + falls + male +isolated + FiveMeds + confidentmanagingIssuesfromConditions + signLanguage,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 75, minbucket = 38, cp=0.0001))
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101)
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104)
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for GP giving enough time")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for GP giving enough time")
 
 #tree 2a: exclude NA from GP recognized MH needs
 tree2a=subset(mydata3, cancer==1  & GPrecognizedMHneeds!="NA")
@@ -322,21 +322,21 @@ fit <- rpart(er ~ dep2 + male + whiteornot +  age65over +  plan + DidnotTakeAppt
 rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101)
 rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104)
 
-#tree 3a: reverse coded ER where 1=did not go to ER
+#tree 3a: reverse coded A&E where 1=did not go to A&E
 fit <- rpart(didNotgoToER ~ dep2 + male + whiteornot +  age65over +  plan + DidnotTakeApptOfferedNoPreferredGP + 
                PatientDiscussedWhatIsImportant + confidentmanagingIssuesfromConditions + isolated + GPrecognizedMHneeds,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 10, minbucket = 7, cp=0.0001))
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101)
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104)
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for A&E after rejecting appt")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for A&E after rejecting appt")
 
 #tree3b: A&E when GP is closed
 fit <- rpart(ERwhenGPclosed ~ dep2 + male + whiteornot +  age65over + parentsOfKidsUnder16 + plan + preferredgp + 
                PatientDiscussedWhatIsImportant + confidentmanagingIssuesfromConditions + isolated + GPrecognizedMHneeds,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 100, minbucket = 400, cp=0.0001))
 rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for A&E when GP is closed")
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for A&E when GP is closedn")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for A&E when GP is closed")
 
-#tree 3b: reverse coded A&E when Gp is closed where 1=did not go to ER
+#tree 3b: reverse coded A&E when GP is closed where 1=did not go to ER
 fit <- rpart(DidNotGoERwhenGPclosed ~ dep2 + male + whiteornot +  age65over + parentsOfKidsUnder16 + plan + preferredgp + 
                PatientDiscussedWhatIsImportant + confidentmanagingIssuesfromConditions + isolated + GPrecognizedMHneeds,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 100, minbucket = 400, cp=0.0001))
@@ -348,8 +348,8 @@ rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Clas
 fit <- rpart(hosp ~ num_LTC + reducedADL + GPGoodInGivingEnoughTime + GPrecognizedMHneeds + confidentmanagingIssuesfromConditions + 
                PatientDiscussedWhatIsImportant + plan + preferredgp + dep2 + whiteornot +  age65over +male +  easyToPhone  + GoodExpMakingAppt,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 300, minbucket = 300, cp=0.0001))
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101)
-rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104)
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for unexpected hospitalisation due to LTC")
+rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for unexpected hospitalisation due to LTC")
 
 #tree 4a: Exp making GP appt
 fit <- rpart(GoodExpMakingAppt ~ blindness + alzheimer + arthritis + deaf + autism + LD + MH + num_LTC + reducedADL 
