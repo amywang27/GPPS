@@ -336,7 +336,7 @@ fit <- rpart(ERwhenGPclosed ~ dep2 + male + whiteornot +  age65over + parentsOfK
 rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 101, main="Classification Tree for A&E when GP is closed")
 rpart.plot(fit,type=3, branch=.3, clip.right.labs=FALSE, extra = 104, main="Classification Tree for A&E when GP is closed")
 
-#tree 3b: reverse coded A&E when GP is closed where 1=did not go to ER
+#tree 3b: reverse coded A&E when GP is closed where 1=did not go to A&E
 fit <- rpart(DidNotGoERwhenGPclosed ~ dep2 + male + whiteornot +  age65over + parentsOfKidsUnder16 + plan + preferredgp + 
                PatientDiscussedWhatIsImportant + confidentmanagingIssuesfromConditions + isolated + GPrecognizedMHneeds,
              method="class", data=subset(mydata3, cancer==1), model=TRUE, weights = wt_new, control = rpart.control (minsplit= 100, minbucket = 400, cp=0.0001))
