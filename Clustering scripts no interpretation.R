@@ -21,7 +21,7 @@ mydata <-fread(file="A:/NHS fake folder/Person Dataset weighted - No barcode CSV
 ##### Data exploration #####
 ############################
 View(mydata)
-str(mydata) #758165 obs. of  177 variables
+str(mydata) 
 tail(mydata)
 
 ################################################################################
