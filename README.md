@@ -1,2 +1,2 @@
 # GPPS
-Data cleaning and decision tree codes for a large patient care dataset
+Data management and decision tree codes for a large patient care dataset.
