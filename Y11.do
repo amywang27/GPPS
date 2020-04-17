@@ -531,19 +531,10 @@ label val GPexp2 GPexp2l
 tab GPexp GPexp2 if cancer==1 [iweight= wt_new]
 
 xi: regress qol dep2 age2 sex whiteornot smoking2 numberofLTC alzheimer heart arthritis copd blind deaf diabetes epi hbp kidney back LD MH neurological other plan exp2 time2 GPexp2 if cancer==1 [iw=wt_new], beta
-//why is Qol coefficient for # of LTC positive when it wasn't before weighting was applied?
-//following resources suggest multicollinearity when Googled "Regression coefficients that flip sign after applying weighting"
-//1. http://www.stat.columbia.edu/~gelman/stuff_for_blog/oh_no_I_got_the_wrong_sign.pdf 
-//2. https://www.researchgate.net/post/Flip_sign_of_a_particular_variable_coefficient_while_using_different_regression_methods
-//this is how to test multicollinearity https://www.youtube.com/watch?v=jo-es2s6Xpw multicollinearity
-//numberofLTC is highly multicollinear (as expected) as it was generated off all the LTCs.
-//to interpret, VIF must be >5 according to https://www.statisticshowto.datasciencecentral.com/variance-inflation-factor/
 vif
-//if you drop LTC, then there is no multicollinearity
 xi: regress qol dep2 age2 sex whiteornot smoking2  alzheimer heart arthritis copd blind deaf diabetes epi hbp kidney back LD MH neurological other plan exp2 time2 GPexp2 if cancer==1 [iw=wt_new], beta
 vif
 
-//Another step from above youtube-found Number of LTCs and all LTCs are highly correlated with eahc other
 vce, corr
 
 //QoL table for team
