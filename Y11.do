@@ -1,6 +1,6 @@
 //import CSV
 import delimited "\\Original files\GPPS Y11 Person Dataset weighted - No barcode CSV.csv", varnames(1)desc
-//(156 vars, 808,332 obs)
+
 
 //Log output and codes
 log using "\\Original files\Y11 Log.log"
@@ -24,13 +24,10 @@ sysdir set PLUS "\\GPPS\plus"
 findit mdesc_ado
 
 mdesc 
-//no missing cancer info
-//7.43% did not provide QoL data so those were excluded from analysis
 
 gen qol=eq_5d_5l
 drop if qol==.
 tab q31_6 [iweight=wt_new], missing 
-//7.36% of patients missing cancer info
 
 //recode cancer
 gen cancer =q31_6
@@ -297,31 +294,20 @@ xi: svy: mean qol if cancer==1, over (depriv)
 
 oneway qol depriv if cancer==1 [w=wt_new], tab //doesn't work with freq weighting
 oneway qol depriv if cancer==1, tab //Bartlett's test for = variance doesn't show much difference than analytical weighting
-//p<0.05 show unequal variance so need to use nonparametric
+
 kwallis qol if cancer==1, by(depriv) //weights not allowed
-//sig difference bw the 4 age groups (p=.0001)
 
 //use regress for anova oneway
 xi: svy: regress qol i.depriv if cancer==1 
-//p<0.05 associated w/QoL
 testparm _I*
-//p<0.05 sig dif btw groups  
 
-
-//does age have a quad efx?
-gen agesq=ageg*ageg
-label var agesq "Age square"
-regress qol ageg agesq if cancer==1 [iw=wt_new]
-//yes
 
 xi: svy: mean qol if cancer==1, over (ageg)
 oneway qol ageg if cancer==1, tab
-//p<0.05 show unequal variance so need to use nonparametric
 kwallis qol if cancer==1, by(ageg)
-//sig difference bw the age groups (p=.0001)
 xi: svy: regress qol i.ageg if cancer==1 
 testparm _I*
-//made no sense, age is not associated w/QoL in regression, yet shows dif bw age groups
+
 gen age2=ageg
 label var age2 ">=65 vs <65"
 recode age2 2=1 3=1 4=1 5=1 6=1 7=2 8=2 9=2
@@ -336,7 +322,6 @@ testparm _I*
 xi: svy: mean qol if cancer==1, over(sex)
 sdtest qol if cancer==1, by(sex)
 //weights not allowed
-//p<.05 use unequal ttest
 ttest qol if cancer==1, by(sex) unequal //weights not allowed
 xi: svy: regress qol i.sex if cancer==1 
 testparm _I*
@@ -344,7 +329,7 @@ testparm _I*
 
 xi: svy: mean qol if cancer==1, over(whiteornot)
 sdtest qol if cancer==1, by(whiteornot)
-//p<.05 use unequal ttest
+
 ttest qol if cancer==1, by(whiteornot) unequal
 xi: svy: regress qol i.whiteornot if cancer==1 
 testparm _I*
@@ -359,9 +344,7 @@ xi: svy: mean qol if cancer==1, over(job)
 oneway qol job if cancer==1, tab
 kwallis qol if cancer==1, by(job)
 xi: svy: regress qol i.job if cancer==1 
-//only education not associated w/qol
 testparm _I*
-//but sig dif btw employment grp
 
 xi: svy: mean qol if cancer==1, over(smoking)
 oneway qol smoking if cancer==1, tab
@@ -372,7 +355,6 @@ testparm _I*
 
 xi: svy: mean qol if cancer==1, over(commute)
 sdtest qol if cancer==1, by(commute)
-//p>.05 use equal ttest
 ttest qol if cancer==1, by(commute)
 xi: svy: regress qol i.commute if cancer==1 
 testparm _I* 
@@ -437,30 +419,6 @@ svy: mean qol if cancer==1, over (other)
 xi: svy: regress qol i.other if cancer==1 
 testparm _I* 
 
-//xi: svy: regress qol i.alzheimer i.heart i.arthritis i.copd i.blind  i.deaf  i.diabetes  i.epi i.hbp i.kidney i.back i.LD i.MH  i.neurological i.other if cancer==1 
-//testparm _I* 
-//I don't think this is accurate for detecting dif in mean qol scores btween those groups using wald test --best to stick to individual regression ones
-
-//svy: mean qol if cancer==1, over (ADL)
-//xi: svy: regress qol i.ADL if cancer==1 
-//testparm _I* 
-
-//svy: mean qol if cancer==1, over (pain)
-//xi: svy: regress qol i.pain if cancer==1 
-//testparm _I* 
-
-//gen anxious=q34e- do not use as it's EQ5D's subscale
-/*
-tab anxious
-recode anxious 1=0 2=1 3=1 4=1 5=1
-label define alab 0 "not anxious/depressed today" 1 "slightly/moderately/severely/extremeley"
-label val anxious alab
-tab q34e anxious if cancer==1 [iw=wt_new]*/
-
-/*xi: svy: mean qol if cancer==1, over(anxious)
-xi: svy: regress qol i.anxious if cancer==1 
-testparm _I* */
-
 xi: svy: mean qol if cancer==1, over(plan)
 xi: svy: regress qol i.plan if cancer==1 
 testparm _I*
@@ -515,11 +473,6 @@ svy: regress qol LD if cancer==1
 svy: regress qol MH if cancer==1 
 svy: regress qol neurological if cancer==1 
 svy: regress qol other if cancer==1 
-
-//do not run as those are EQ5D subscales
-/*svy: regress qol i.ADL if cancer==1 
-svy: regress qol i.pain if cancer==1 
-svy: regress qol i.anxious if cancer==1 */
 
 drop if plan==3
 tab plan if cancer==1 [iweight= wt_new]
@@ -577,7 +530,6 @@ label define GPexp2l  1"very/fairly good" 0"neutral/poor/very poor"
 label val GPexp2 GPexp2l
 tab GPexp GPexp2 if cancer==1 [iweight= wt_new]
 
-//do not run with EQ5D subscales (ADL pain anxious)  xi: regress qol dep2 age2 sex whiteornot smoking2 numberofLTC alzheimer heart arthritis copd blind deaf diabetes epi hbp kidney back LD MH neurological other ADL pain anxious plan exp2 time2 GPexp2 if cancer==1, beta
 xi: regress qol dep2 age2 sex whiteornot smoking2 numberofLTC alzheimer heart arthritis copd blind deaf diabetes epi hbp kidney back LD MH neurological other plan exp2 time2 GPexp2 if cancer==1 [iw=wt_new], beta
 //why is Qol coefficient for # of LTC positive when it wasn't before weighting was applied?
 //following resources suggest multicollinearity when Googled "Regression coefficients that flip sign after applying weighting"
@@ -594,26 +546,12 @@ vif
 //Another step from above youtube-found Number of LTCs and all LTCs are highly correlated with eahc other
 vce, corr
 
-//is the beta still the same when adjusting for age on quadratic
-//do not run xi: regress qol dep2 i.ageg i.agesq sex whiteornot smoking2 numberofLTC alzheimer heart arthritis copd blind deaf diabetes epi hbp kidney back LD MH neurological other ADL pain anxious plan exp2 time2 GPexp2 if cancer==1, beta
-
-
-//do cancer patients with HBP have better qol than those without hbp, after adjusting for all confounders?
-/*xi: svy: regress qol dep2 age2 sex whiteornot smoking2 numberofLTC alzheimer heart arthritis copd blind deaf diabetes epi hbp kidney back LD MH neurological other plan exp2 time2 GPexp2 if cancer==1
-//no difference, p>0.05
-
-//with no adjustment hbp qol is still worse than those without hbp
-xi: svy: regress qol i.hbp if cancer==1
-testparm _I*
-//sig difference bw groups in qol
-*/
-
 //QoL table for team
 sum qol if cancer==1 [aw=wt_new], detail
 bysort ageg: sum qol  if cancer==1 [aw=wt_new], detail
 bysort sex: sum qol  if cancer==1 [aw=wt_new], detail
 bysort depriv: sum qol  if cancer==1 [aw=wt_new], detail
 bysort numberofLTC: sum qol  if cancer==1 [aw=wt_new], detail
-//ltc 14 is outlier-22 out of 31 people selected 1
- tab qol if cancer==1 & numberofLTC==14 [iw=wt_new]
+
+tab qol if cancer==1 & numberofLTC==14 [iw=wt_new]
 //stop when you drop some missing values/it affect the whole QoL, so redo table to before dropping
