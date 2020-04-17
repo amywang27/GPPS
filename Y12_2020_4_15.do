@@ -30,8 +30,6 @@ keep if cancer>=0
 drop if cancer==.
 
 tab cancer [iweight=wt_new], missing
-
-//there are no missing data in LTC after dropping missing cancer info in q31_6
 sum q31_1-q31_17
 
 //recode deprivation
@@ -52,13 +50,6 @@ bysort cancer: tab deprive
 
 //sig test
 svy: tab cancer deprive
-//there is sig dif
-/*no longer need association 
-xi: logistic cancer i.deprive [iw=wt_new]
-
-xi: svy: logistic cancer i.deprive 
-//shows same result
-*/
 
 //recode age
 tab q48_merged
@@ -74,9 +65,6 @@ bysort cancer: tab age [iweight= wt_new]
 
 //sig test
 svy: tab cancer age
-//there is sig dif
-//xi: logistic cancer i.age [iw=wt_new]
-//xi: svy: logistic cancer i.age 
 
 //recode sex
 tab q47
@@ -92,7 +80,6 @@ tab sex q47
 bysort cancer: tab sex [iweight= wt_new]
 //sig test
 svy: tab cancer sex
-//svy: logistic cancer sex
 
 //recode ethnicity
 tab q49
@@ -117,9 +104,6 @@ tab whiteornot
 bysort cancer: tab whiteornot [iweight= wt_new]
 //sig test
 svy: tab cancer whiteornot
-//xi: svy: logistic cancer i.ethnicity
-//xi: logistic cancer i.ethnicity [iw=wt_new]
-//same OR results
 
 //recode employment status
 tab q50
@@ -134,7 +118,6 @@ drop if employment<0
 bysort cancer: tab employment [iweight= wt_new]
 //sig test
 svy: tab cancer employment
-//xi: svy: logistic cancer i.employment
 
 //recode smoking status
 gen smoking =q55
@@ -148,7 +131,6 @@ tab smoking q55
 bysort cancer: tab smoking [iweight= wt_new]
 //sig test
 svy: tab cancer smoking
-//xi: svy: logistic cancer i.smoking
 
 //recode alzheimer
 tab q31_1
@@ -309,8 +291,6 @@ svy: tab cancer stroke
 svy: tab cancer other
 svy: tab cancer noLTC
 
-//svy: logistic cancer alzheimer arthritis blind copd deaf autism diabetes heart hbp kidney LD MH epi stroke other noLTC
-
 //work out prevalence with multimorbidity-16 total including cancer
 gen numberofLTC = alzheimer + arthritis + blind + cancer+ copd+ deaf+ autism+ diabetes +heart +hbp +kidney+ LD+ MH+ epi+ stroke+ other
 tab numberofLTC
@@ -337,7 +317,6 @@ drop if ADL<0
 bysort cancer: tab ADL [iweight= wt_new]
 //sig test
 svy: tab cancer ADL
-//xi: svy: logistic cancer i.ADL
 
 //any recent hospitalization due to LTC by cancer status?
 tab q95
@@ -350,7 +329,6 @@ drop if hosp<0
 bysort cancer: tab hosp [iweight= wt_new]
 //sig test
 svy: tab cancer hosp
-//svy: logistic cancer hosp
 
 //given written LTC management plan by cancer status?
 tab q99
@@ -362,14 +340,9 @@ drop if plan<0
 bysort cancer: tab plan [iweight=wt_new] 
 //sig test
 svy: tab cancer plan
-//xi: svy: logistic cancer i.plan
 
 
 //making an appointment-not offered a choice of appointment by cancer
-//tab ïq79_4
-//if using revised data
-//gen noappt =ïq79_4
-//for raw data
 gen noappt =q79_4
 tab q79_4
 label var noappt "not offered an appointment when making an appt"
@@ -379,7 +352,6 @@ drop if noappt<0
 bysort cancer: tab noappt [iweight=wt_new]
 //sig test
 svy: tab cancer noappt
-//svy: logistic cancer noappt
 
 //Q82_3: What did you do when you did not take the appointment you were offered?…Went to A&E
 tab q82_3
@@ -392,7 +364,6 @@ bysort cancer: tab er [iweight=wt_new]
 tab er [iweight=wt_new]
 //sig test
 svy: tab cancer er
-//svy: logistic cancer er
 
 //Q82_3 (went to A&E when they didn't take offered appt) + Q80 (were not satisfied w/appt offered & didn't take appt)
 tab q80
@@ -401,11 +372,6 @@ label var noPreferredAppt "were not satisfied w/appt offered & didn't take appt"
 label define nolab 1 "Yes, and I accepted an appointment" 2 "No, but I still took an appointment" 3 "No, and I didn't take an appt"
 label val noPreferredAppt nolab
 drop if noPreferredAppt<0
-//didn't work bysort cancer: tab noPreferredAppt==3 & er==1 [iweight=wt_new]
-
-
-
-
 
 //•	Q18: Overall, how would you describe your experience of making an appointment?
 tab q18
@@ -417,7 +383,6 @@ drop if exp<0
 bysort cancer: tab exp [iweight=wt_new]
 //sig test
 svy: tab cancer exp
-//xi: svy: logistic cancer i.exp
 
 
 //•	Q21a: Last time you had a general practice appointment, how good was the healthcare professional at: Giving you enough time – GP
@@ -430,7 +395,6 @@ drop if time<0
 bysort cancer: tab time [iweight=wt_new]
 //sig test
 svy: tab cancer time
-//xi: svy: logistic cancer i.time
 
 //•	Q90: Thinking about the reason for your last general practice appointment, were your needs met?
 tab q90
@@ -442,7 +406,6 @@ drop if need<0
 bysort cancer: tab need [iweight=wt_new]
 //sig test
 svy: tab cancer need
-//xi: svy: logistic cancer i.need
 
 //•	Q28: Overall, how would you describe your experience of your GP practice?
 tab q28
@@ -476,80 +439,31 @@ tab q82_9 if cancer==1 [iw=wt_new]
 
 //Table 4.2 Deprivation
 
-//for cancer patients only-deprivation x age
-//tab deprive age if cancer==1 [iweight=wt_new],r
-
-//bysort age: tab deprive if cancer==1 [iw=wt_new]
-
-
 bysort deprive: tab age if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive age if cancer==1
-//same as this svy: tab age  deprive if cancer==1
-
-//xi: ologit deprive i.age [iw=wt_new] if cancer==1, or
-//xi: mlogit deprive i.age [iw=wt_new] if cancer==1, rrr
-//same result but should use mlogit as you can't do brant test
-//recode deprivation to interpret it easier
-/*gen deprived = deprive
-label var deprived "Deprivation"
-label define deprivedlab  0 "least" 1"moderately" 2"most" 
-label val deprived deprivedlab
-recode deprived 3=0 2=1 1=2
-tab deprived deprive
-
-xi: ologit deprived i.age if cancer==1 [iw=wt_new],or
-xi: mlogit deprived i.age if cancer==1 [iw=wt_new],rrr
-//results same
-xi: svy, rrr: mlogit deprived i.age if cancer==1
-xi: svy, or: ologit deprived i.age if cancer==1
-//same results
-*/
-//if I ungroup age, results are the same 
-//mlogit deprived age if cancer==1 [iw=wt_new],rrr
-//svy, rrr: mlogit deprived age if cancer==1
-
-//pick any code above for other vars
 
 //for cancer patients only-deprivation x sex
-//tab  sex deprive if cancer==1 [iweight=wt_new], r
 bysort deprive: tab sex if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive sex if cancer==1
-//n.s
 
 //for cancer patients only-deprivation x eth
-//tab deprive ethnicity if cancer==1 [iw=wt_new],r
 bysort deprive: tab whiteornot if cancer==1 [iw=wt_new]
 bysort ethnicity: tab deprive if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive whiteornot if cancer==1
 svy: tab deprive ethnicity if cancer==1
 
-
-//don't need to do regression modeling 
-//xi: svy, rrr: mlogit deprived i.ethnicity if cancer==1
-
 //for cancer patients only-deprivation x employment
 bysort employment: tab deprive if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive employment if cancer==1
-//p<0.05
-
-//this is also confirmed by regression modeling
-//xi: svy, rrr: mlogit deprived i.employment if cancer==1
 
 //for cancer patients only-deprivation x smoking
-//bysort smoking: tab deprive if cancer==1 [iw=wt_new]
-//most deprived tend to be regular, occasional smoker. Least most likely to have never smoked.
 bysort deprive: tab smoking if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive smoking if cancer==1
-
-//svy: tab  smoking deprive if cancer==1
-
-//chi sq is ok to use for more than 2 categories: https://www.researchgate.net/post/How_to_calculate_chi_square_test_for_more_than_2_by_2_consistency_table_in_SPSS
-
 
 //cancer deprivation x LTC
 bysort deprive: tab1 alzheimer arthritis blind copd deaf autism diabetes heart hbp kidney LD MH epi stroke other noLTC if cancer==1 [iweight= wt_new]
@@ -572,77 +486,48 @@ svy: tab deprive  stroke if cancer==1
 svy: tab deprive  other if cancer==1
 //svy: tab deprive cancer noLTC
 
-//for cancer patients only-deprivation x number of LTC
-//bysort numberofLTC: tab deprive if cancer==1 [iw=wt_new]
-//least deprived have less LTC than those more deprived
-//sig test
-//svy: tab deprive numberofLTC if cancer==1 
-
 svy: mean numberofLTC if cancer==1, over(deprive)
-//bysort deprive: tab numberofLTC if cancer==1 [iw=wt_new]
 //sig test
-//deprive is not binary svy: regress numberofLTC deprive if cancer==1 so use anova via regress https://www.stata.com/statalist/archive/2010-03/msg00684.html
 xi: regress numberofLTC i.deprive if cancer==1 [iw=wt_new]
-//svy: tab numberofLTC deprive if cancer==1
 
 //for cancer patients only-deprivation x ADL
-//bysort ADL: tab deprive if cancer==1 [iw=wt_new]
-
 bysort deprive: tab ADL if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive ADL if cancer==1 
-//p<0.05
-//svy: tab ADL deprive if cancer==1 
 
 //for cancer patients only-deprivation x unexpected hospital stays
 bysort deprive: tab hosp if cancer==1 [iw=wt_new]
-
 svy: tab deprive hosp if cancer==1 
-//p<0.05
 
 
 //for cancer patients only-deprivation x mgmt plan
 bysort deprive: tab plan if cancer==1 [iw=wt_new]
 svy: tab deprive plan if cancer==1 
-//ns
 
 //for cancer patients only-deprivation x no appt
 bysort deprive: tab noappt if cancer==1 [iw=wt_new]
 svy: tab deprive noappt if cancer==1 
-//ns
 
 //for cancer patients only-deprivation x went to AE when did not take appt
 bysort deprive: tab er  if cancer==1 [iw=wt_new]
 svy: tab deprive er if cancer==1 
-//ns
 
 //for cancer patients only-deprivation x appointment making experience
-//bysort exp: tab deprive if cancer==1 [iw=wt_new]
 bysort deprive: tab exp if cancer==1 [iw=wt_new]
 svy: tab deprive exp if cancer==1 
 
 
 //for cancer patients only-deprivation x GP giving enough time
-//bysort time: tab deprive if cancer==1 [iw=wt_new]
 bysort deprive: tab time if cancer==1 [iw=wt_new]
-//svy: tab time deprive if cancer==1 
 svy: tab deprive time if cancer==1
 
 
-
 //for cancer patients only-deprivation x needs met at GP appt
-//bysort need: tab deprive if cancer==1 [iw=wt_new]
 svy: tab deprive need if cancer==1
 
 bysort deprive: tab need if cancer==1 [iw=wt_new]
-//svy: tab need deprive if cancer==1 
 
 //for cancer patients only-deprivation x overall experience of GP pracitce
-//bysort GPexp: tab deprive if cancer==1 [iw=wt_new]
-//svy: tab GPexp deprive if cancer==1 
-
-//xi: svy, rrr: mlogit deprived i.GPexp if cancer==1
-//xi: mlogit deprived i.GPexp if cancer==1 [iw=wt_new], rrr
 bysort deprive: tab GPexp if cancer==1 [iw=wt_new]
 svy: tab deprive GPexp if cancer==1
 
@@ -650,7 +535,6 @@ svy: tab deprive GPexp if cancer==1
 //for cancer patients only-deprivation x went to A&E when Gp closed
 bysort deprive: tab ERclose if cancer==1 [iw=wt_new]
 svy: tab deprive ERclose if cancer==1
-//ns
 
 //table 4.2 Age 
 //group age into binary variable
@@ -669,33 +553,18 @@ bysort age2: tab deprive if cancer==1 [iw=wt_new]
 svy: tab age2 deprive if cancer==1
 
 //for cancer patients only-age x sex
-//bysort sex: tab age if cancer==1 [iw=wt_new]
-//svy: tab age sex if cancer==1
-
 bysort age2: tab sex if cancer==1 [iw=wt_new]
 //sig test
 svy: tab age2 sex if cancer==1
 
 
 //for cancer patients only-age x ethn
-//bysort ethnicity: tab age if cancer==1 [iw=wt_new]
-//svy: tab age ethnicity if cancer==1
-
 bysort age2: tab whiteornot if cancer==1 [iw=wt_new]
-
 svy: tab age2 whiteornot if cancer==1
 
-
-//for cancer patients only-age x employment
-//bysort age2: tab employment if cancer==1 [iw=wt_new]
-//svy: tab age employment if cancer==1
-
-
 //for cancer patients only-age x smoking
-//bysort smoking: tab age if cancer==1 [iw=wt_new]
 bysort age2: tab smoking if cancer==1 [iw=wt_new]
 svy: tab age2 smoking if cancer==1
-
 
 bysort age2: tab1 alzheimer arthritis blind copd deaf autism diabetes heart hbp kidney LD MH epi stroke other noLTC if cancer==1 [iweight= wt_new]
 
@@ -716,10 +585,6 @@ svy: tab age2  epi if cancer==1
 svy: tab age2  stroke if cancer==1
 svy: tab age2  other if cancer==1
 
-//for cancer patients only-age x number of LTC
-//bysort numberofLTC: tab age if cancer==1 [iw=wt_new]
-//svy: tab age numberofLTC if cancer==1 
-
 //can't do scatter or histogram with svy or iweight
 svy: mean numberofLTC if cancer==1, over(age2)
 //shows mean numberofLTC by age 
@@ -732,7 +597,6 @@ svy: tab age2 ADL if cancer==1
 
 
 //for cancer patients only-age x unexpected hospital stays
-//bysort hosp: tab age if cancer==1 [iw=wt_new]
 bysort age2: tab hosp if cancer==1 [iw=wt_new]
 svy: tab age2 hosp if cancer==1 
 
@@ -740,17 +604,6 @@ svy: tab age2 hosp if cancer==1
 //for cancer patients only-age x mgmt plan
 bysort age2: tab plan if cancer==1 [iw=wt_new]
 svy: tab age2 plan if cancer==1 
-
-
-//for cancer patients only-age x no appt
-//bysort age2: tab noappt if cancer==1 [iw=wt_new]
-//svy: tab age2 noappt if cancer==1 
-
-
-//for cancer patients only-age x went to AE when did not take appt
-//bysort er: tab age if cancer==1 [iw=wt_new]
-//svy: tab age er if cancer==1 
-
 
 //for cancer patients only-age x appointment making experience
 bysort age2: tab exp if cancer==1 [iw=wt_new]
@@ -789,48 +642,9 @@ label val dep2 dep2lab
 tab dep2 deprive if cancer==1 [iweight= wt_new]
 
 //LTC
-//xi: svy: regress numberofLTC i.deprive if cancer==1
 svy: regress numberofLTC dep2 if cancer==1
-//xi: svy: regress numberofLTC i.deprive age2 if cancer==1
 svy: regress numberofLTC dep2 age2 if cancer==1
-// q30 is any LTC - recode it so 0 no LTC, 1 = yes
-/*gen LTC=q30
-label var LTC "Any LTC"
-recode LTC 1=1 2=0 3=3
-label define LTClab 1 "yes" 0 "no"
-label val LTC LTClab
-drop if LTC ==3
-tab LTC q30
-tab LTC q30 if cancer==1 [iweight= wt_new]
-svy: regress numberofLTC dep2 LTC if cancer==1
- bysort cancer: tab LTC [iw=wt_new]*/
-// why is cancer showing no ltc? try using q30_recoded as they convered 2 "no" into 1 "yes"
 
-/*tab q30_recoded
-gen anyLTC=q30_recoded
-label var anyLTC "Any LTC"
-recode anyLTC 1=1 2=0 3=3
-label define anyLTClab 1 "yes" 0 "no"
-label val anyLTC anyLTClab
-drop if anyLTC ==3
-tab anyLTC 
-tab anyLTC q30 if cancer==1 [iweight= wt_new]
- bysort cancer: tab anyLTC [iw=wt_new]
-
- //stata omits anyLTC in regression, and results are same as unadjusted-having LTC is directly related to deprivation
-  svy: regress numberofLTC dep2 if cancer==1
-
-
-svy: logistic noappt dep2 if cancer==1
-svy: logistic noappt dep2 age2 if cancer==1
-
-
-svy: logistic er dep2 if cancer==1
-svy: logistic er dep2 age2 if cancer==1
-*/
-
-//xi: svy: logistic i.exp dep2 if cancer==1 doesn't work!
-//need to turn exp into binary
 //group exp into binary variable
 tab exp if cancer==1 [iweight= wt_new]
 
@@ -889,7 +703,6 @@ svy: logistic GPexp2 dep2 age2 if cancer==1
 svy: logistic ERclose dep2 if cancer==1
 svy: logistic ERclose dep2 age2 if cancer==1
 
-//ER becomes sig so what if you ungroup dep
 //reverse code deprive
 gen deprive2=deprive
 recode deprive2 1=3 2=2 3=1
@@ -899,14 +712,6 @@ tab deprive2 deprive if cancer==1 [iw=wt_new]
 
 xi: svy: logistic ERclose i.deprive2 if cancer==1
 xi: svy: logistic ERclose i.deprive2 age2 if cancer==1
-
-//need LRT to get overall p value for 3 category
-estimates store a
-svy: logistic ERclose age2 if cancer==1
-est store b
-//lrtest a b
-//lrtest is not appropriate with survey estimation results
-
 
 //table 4.3 LTC
 //gen non-cancerous ltc based on 15 LTCs that are not cancer
@@ -940,13 +745,8 @@ xi: svy: logistic ERclose i.deprive2 age2 sex MH ncLTC whiteornot if cancer==1
 //table 4.4 strongest predictors
 logistic exp2 dep2 age2 sex MH whiteornot ncLTC  if cancer==1 [iw=wt_new]
  logit exp2 dep2 age2 sex MH whiteornot ncLTC  if cancer==1 [iw=wt_new], nolog
-//fitstat
-//listcoef, std help
-//cannot use listcoef for models with iweights even after following this method: https://www3.nd.edu/~rwilliam/stats3/L04.pdf
-//can it work with linear regression?
 xi: regress numberofLTC  dep2 age2 sex MH whiteornot if cancer==1 [iw=wt_new], beta
 xi: regress numberofLTC  dep2 age2 sex MH whiteornot hosp exp2 time2 need2 GPexp2 noappt er ERclose if cancer==1 [iw=wt_new], beta
-//yes you could
 
 //table 4.4a most common comorbidities for most deprived cancer patients
 //create frequency table
@@ -967,76 +767,3 @@ tab1 alzheimer arthritis blind copd deaf autism diabetes heart hbp kidney LD MH 
 //for health inequality report: 
 //do more deprived still have more unexpected hospital stays after adjusting for GPs time and accessing GP appointment, age, sex, ethnicity, and LTCs
 svy: logistic hosp dep2 age2 sex MH ncLTC whiteornot exp2 time2 if cancer==1
-
-//do cluster analysis-can we use a cluster method to group cancer patients in groups of similar characteristics (e.g. age and number of LTC, and deprivation) and  then test whether these groups have significantly different experience / outcomes. 
-//which clusters/groups have smiliar characteristics using cluster? then compare their outcomes to each other
-svy: cluster kmeans dep2 age2 sex whiteornot smoking numberofLTC hosp plan if cancer==1, k(9)
-cluster kmeans dep2 age2 sex whiteornot smoking numberofLTC hosp plan if cancer==1, k(9)
-//weighting not allowed in cluster analysis in Stata. Stata can't deal with weights in any cluster procedure and Google confirmed it (https://www.stata.com/statalist/archive/2012-02/msg00851.html).
-/*If your weighting variable has a large range, this may be a problem (i.e., if some cases have many times the weight of others).
-If I understand k-means correctly, weighting would affect the centroid of each cluster and therefore the solution. 
-On the other hand, cluster analysis is mainly a descriptive and exploratory device, and therefore the importance of weighting may be less (depending on the analyst's concerns).
- Tried it without weighting, and Stata shows nothing except generating new clust_1 VAR..
-//shouldn't it show graphs of clusters?
-//try this https://stats.stackexchange.com/questions/77850/assign-weights-to-variables-in-cluster-analysis 
-and https://www.reed.edu/psychology/stata/analyses/advanced/agglomerative.html
-The clustering algorithms (I try 3 different) I wish to use are k-means, weighted-average linkage and average-linkage. None worked.
-*/
-//k means does not work as not all variables are continuous!
-set seed 12345
-cluster kmeans numberofLTC if cancer==1, k(3) name(myclus1)
-bysort myclus1: summarize numberofLTC if cancer==1 [iw=wt_new]
-twoway dot numberofLTC myclus1
-cluster stop
-//shows graph of 3 lines of dots, and this useless table I cant intepret: 
-K-means clustering requires all variables to be continuous. 
-Other methods that do not require all variables to be continuous, including some heirarchical clustering methods, have different assumptions
-Hierachical clustering weighted average and average clustering for mixed variables don't work due to insufficient memory*/
-cluster waveragelinkage age2 dep2 sex whiteornot numberofLTC if cancer==1, measure(Gower) name(myclus)
-cluster waveragelinkage age2 dep2 sex  if cancer==1
-cluster averagelinkage age2 dep2 sex whiteornot numberofLTC if cancer==1
-//error msg: insufficient memory for ClusterMatrix so I reduced number of var's and still received same error msg. 
-//I tried other clustering methods.
-cluster s dep2 MH age2, measure(matching) gen (zstub)
-cluster list
-cluster tree
-//too many leaves; consider using the cutvalue() or cutnumber() options. I dropped several var's and still got same error message
-//clustering took even longer after dropping more var's -and wouldn't stop executing for more than 50 minutes, forget it!
-cluster singlelinkage dep2 MH age2, name(sngeuc)
-cluster list sngeuc
-cluster dendrogram sngeuc, xlabel(, angle(90) labsize(*.75))
-graph matrix xdep2 MH age2
-cluster dendrogram sngeuc, labels(numberofLTC) xlabel(, angle(90) labsize(*.75))
-//assume this will take a long time too as it's same code as previous, so stopped the execution
-
-//so cluster single linkage didn't work. I tried cluster median then ward, and Stata ran out of memory for both techniques. 
-//I tried matrix dissimilarity and it wiped out all my data!
-//cluster commands require a significant amount of memory and execution time. With many observations, the execution time is significant.
-
-//try CART-chaid method
-ssc install chaid
-set seed 1234567
-ssc install moremata
-
-//which clusters fall under GP time///////////////////////////////////////////////////////////////
-//chaid time2 if cancer==1, dvordered unordered(dep2 MH) ordered(age2 ncLTC) svy exhaust
-//try it without dvordered (dvordered treats the response variable as being ordered.)
-//chaid time2 if cancer==1, unordered(dep2 MH age2 ncLTC) svy 
-//No clusters uncovered.  Cluster #1 is null.
-//takes long time to process each time I experiment with the codes-16:40 to 16:48
-
-chaid time2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2 ncLTC ,n(2)) svy
-chaid time2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH ncLTC ,n(2)) svy
-//No clusters uncovered.  Cluster #1 is null.
-chaid time2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2 ,n(2)) svy
-chaid time2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2 ncLTC whiteornot sex,n(2)) svy
-chaid time2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2  whiteornot sex,n(2)) svy
-
-//identify clusters for GP appt making
-chaid exp2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2 ncLTC whiteornot sex,n(2)) svy
-//xi: svy, rrr: mlogit GPexp i.deprive age2 if cancer==1
-
-
-//xi: mlogit deprived i.GPexp age if cancer==1 [iw=wt_new], rrr
-
-
