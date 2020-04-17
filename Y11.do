@@ -1,15 +1,15 @@
 //import CSV
-import delimited "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\Original files\GPPS Y11 Person Dataset weighted - No barcode CSV.csv", varnames(1)desc
+import delimited "\\Original files\GPPS Y11 Person Dataset weighted - No barcode CSV.csv", varnames(1)desc
 //(156 vars, 808,332 obs)
 
 //Log output and codes
-log using "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\Original files\Y11 Log.log"
+log using "\\Original files\Y11 Log.log"
 
 //save CSV as .dta
-save "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\Year 11 -2017\Year11weighteddata.dta"
+save "\\GPPS\Year 11 -2017\Year11weighteddata.dta"
 
 //start here-opening New Stata raw file
-use "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\Year 11 -2017\Year11weighteddata.dta", clear
+use "\\GPPS\Year 11 -2017\Year11weighteddata.dta", clear
 desc
 
 //convert string to numeric
@@ -18,9 +18,8 @@ desc
 
 //assumption check-missing data and outliers
 misstable sum 
-//18821 missing cancer info. No outliers.
 
-sysdir set PLUS "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\plus"
+sysdir set PLUS "\\GPPS\plus"
 
 findit mdesc_ado
 
@@ -440,7 +439,7 @@ testparm _I*
 
 //xi: svy: regress qol i.alzheimer i.heart i.arthritis i.copd i.blind  i.deaf  i.diabetes  i.epi i.hbp i.kidney i.back i.LD i.MH  i.neurological i.other if cancer==1 
 //testparm _I* 
-//I don't thikn this is accurate for detecting dif in mean qol scores btween those groups using wald test --best to stick to individual regression ones
+//I don't think this is accurate for detecting dif in mean qol scores btween those groups using wald test --best to stick to individual regression ones
 
 //svy: mean qol if cancer==1, over (ADL)
 //xi: svy: regress qol i.ADL if cancer==1 
