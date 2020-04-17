@@ -1,7 +1,4 @@
-//using raw data or
-use "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\GPPS Y12 Person Dataset weighted raw data.dta", clear
-//using revised data for faster processing (but some variables i need are inadvertently dropped)
-use "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\GPPS Y12 Person Dataset weighted revised data.dta", clear
+use "\\GPPS\GPPS Y12 Person Dataset weighted raw data.dta", clear
 desc
 
 //convert string to numeric
@@ -11,19 +8,15 @@ desc
  
 //assumption check-missing data and outliers
 misstable sum 
-//18821 missing cancer info. No outliers.
 
 //show % missing
-sysdir set PLUS "\\tsclient\G\NHS CB\Analytical Services (Outcomes Analysis Team)\Domain 1\Cancer\10. SCISP\GPPS\plus"
+sysdir set PLUS "\\GPPS\plus"
 
 findit mdesc_ado
 
 mdesc
-/*2.5% missing cancer info Try looking at cancer population
-*/
 
 tab q31_6 [iweight=wt_new], missing 
-//19,232 (2.54%) out of 758,165 patients missing cancer info
 
 //recode cancer
 gen cancer =q31_6
@@ -31,14 +24,12 @@ label var cancer  "cancer status"
 label define canlab 0 "no cancer" 1 "has cancer"
 label val cancer canlab
 tab cancer [iweight= wt_new], missing
-//84,007 (11.08%) missing or answered in error
 
 //exclude people w/o complete cancer info
 keep if cancer>=0
 drop if cancer==.
 
 tab cancer [iweight=wt_new], missing
-//674,157 with complete cancer information. 21,287 (3%) with cancer and 652,870 (96%) without cancer.
 
 //there are no missing data in LTC after dropping missing cancer info in q31_6
 sum q31_1-q31_17
@@ -64,7 +55,7 @@ svy: tab cancer deprive
 //there is sig dif
 /*no longer need association 
 xi: logistic cancer i.deprive [iw=wt_new]
-//less deprived are 1.24-1.37 times more likely to have cancer
+
 xi: svy: logistic cancer i.deprive 
 //shows same result
 */
@@ -487,10 +478,10 @@ tab q82_9 if cancer==1 [iw=wt_new]
 
 //for cancer patients only-deprivation x age
 //tab deprive age if cancer==1 [iweight=wt_new],r
-//looks like most fall in 65-74, for all
+
 //bysort age: tab deprive if cancer==1 [iw=wt_new]
-//older least deprived, younger most deprived
-//there is sig difference bw age and deprivation
+
+
 bysort deprive: tab age if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive age if cancer==1
@@ -498,7 +489,7 @@ svy: tab deprive age if cancer==1
 
 //xi: ologit deprive i.age [iw=wt_new] if cancer==1, or
 //xi: mlogit deprive i.age [iw=wt_new] if cancer==1, rrr
-//same result but should use mlogit as you can't do brant test, it reads older you are, more likely you're least deprived
+//same result but should use mlogit as you can't do brant test
 //recode deprivation to interpret it easier
 /*gen deprived = deprive
 label var deprived "Deprivation"
@@ -509,12 +500,12 @@ tab deprived deprive
 
 xi: ologit deprived i.age if cancer==1 [iw=wt_new],or
 xi: mlogit deprived i.age if cancer==1 [iw=wt_new],rrr
-//results same, older are less likely to be most deprived but p value results slightly differ from below
+//results same
 xi: svy, rrr: mlogit deprived i.age if cancer==1
 xi: svy, or: ologit deprived i.age if cancer==1
 //same results
 */
-//if I ungroup age, results are the same and read older less likely deprived
+//if I ungroup age, results are the same 
 //mlogit deprived age if cancer==1 [iw=wt_new],rrr
 //svy, rrr: mlogit deprived age if cancer==1
 
@@ -531,21 +522,16 @@ svy: tab deprive sex if cancer==1
 //tab deprive ethnicity if cancer==1 [iw=wt_new],r
 bysort deprive: tab whiteornot if cancer==1 [iw=wt_new]
 bysort ethnicity: tab deprive if cancer==1 [iw=wt_new]
-/*British, Chinese, Arab and Eurasian least deprived. Afro, Caribbean, Bangladeshi, Pakistani, White/African, Gypsy/Irish traveler most deprived
-Very few obs on minority so cannot generalize to minority. 
-Won't separate race into diff ethnicity due to too few obs*/
 //sig test
 svy: tab deprive whiteornot if cancer==1
 svy: tab deprive ethnicity if cancer==1
-//there is sig difference bw eth and deprivation
+
 
 //don't need to do regression modeling 
 //xi: svy, rrr: mlogit deprived i.ethnicity if cancer==1
-//most deprived compared to British are (p<0.05):Irish, *esp Gypsy,any white, White/Black African, Indian, Pakistani, Bangladeshi, AnyAsian, Afri, Carib ,other Ethnic
 
 //for cancer patients only-deprivation x employment
 bysort employment: tab deprive if cancer==1 [iw=wt_new]
-//unemployed, sick/disabled, most deprived
 //sig test
 svy: tab deprive employment if cancer==1
 //p<0.05
@@ -559,9 +545,9 @@ svy: tab deprive employment if cancer==1
 bysort deprive: tab smoking if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive smoking if cancer==1
-//p<0.05
+
 //svy: tab  smoking deprive if cancer==1
-//p<0.05
+
 //chi sq is ok to use for more than 2 categories: https://www.researchgate.net/post/How_to_calculate_chi_square_test_for_more_than_2_by_2_consistency_table_in_SPSS
 
 
@@ -591,7 +577,7 @@ svy: tab deprive  other if cancer==1
 //least deprived have less LTC than those more deprived
 //sig test
 //svy: tab deprive numberofLTC if cancer==1 
-//p<0.05
+
 svy: mean numberofLTC if cancer==1, over(deprive)
 //bysort deprive: tab numberofLTC if cancer==1 [iw=wt_new]
 //sig test
@@ -601,7 +587,7 @@ xi: regress numberofLTC i.deprive if cancer==1 [iw=wt_new]
 
 //for cancer patients only-deprivation x ADL
 //bysort ADL: tab deprive if cancer==1 [iw=wt_new]
-//Least deprived most likely not to have any reductions in carrying out ADL, whereas most deprived's LTC reduce their ability to carry out their ADL the most. 
+
 bysort deprive: tab ADL if cancer==1 [iw=wt_new]
 //sig test
 svy: tab deprive ADL if cancer==1 
@@ -610,7 +596,7 @@ svy: tab deprive ADL if cancer==1
 
 //for cancer patients only-deprivation x unexpected hospital stays
 bysort deprive: tab hosp if cancer==1 [iw=wt_new]
-//greater proportion of most deprived patients had unexpected hospital stays
+
 svy: tab deprive hosp if cancer==1 
 //p<0.05
 
@@ -634,30 +620,29 @@ svy: tab deprive er if cancer==1
 //bysort exp: tab deprive if cancer==1 [iw=wt_new]
 bysort deprive: tab exp if cancer==1 [iw=wt_new]
 svy: tab deprive exp if cancer==1 
-//p<0.05, most deprived had very poor exp whereas least deprived had very good experience
+
 
 //for cancer patients only-deprivation x GP giving enough time
 //bysort time: tab deprive if cancer==1 [iw=wt_new]
 bysort deprive: tab time if cancer==1 [iw=wt_new]
 //svy: tab time deprive if cancer==1 
 svy: tab deprive time if cancer==1
-//p<0.05, most deprived had very poor whereas least deprived had very good
+
 
 
 //for cancer patients only-deprivation x needs met at GP appt
 //bysort need: tab deprive if cancer==1 [iw=wt_new]
 svy: tab deprive need if cancer==1
-//p<0.05, most deprived no whereas least deprived def yes
+
 bysort deprive: tab need if cancer==1 [iw=wt_new]
 //svy: tab need deprive if cancer==1 
 
 //for cancer patients only-deprivation x overall experience of GP pracitce
 //bysort GPexp: tab deprive if cancer==1 [iw=wt_new]
 //svy: tab GPexp deprive if cancer==1 
-//p<0.05, most and least deprived very poor whereas least deprived very good
+
 //xi: svy, rrr: mlogit deprived i.GPexp if cancer==1
 //xi: mlogit deprived i.GPexp if cancer==1 [iw=wt_new], rrr
-//shows most deprived have poorer exp for both
 bysort deprive: tab GPexp if cancer==1 [iw=wt_new]
 svy: tab deprive GPexp if cancer==1
 
@@ -670,7 +655,7 @@ svy: tab deprive ERclose if cancer==1
 //table 4.2 Age 
 //group age into binary variable
 tab age if cancer==1 [iweight= wt_new]
-//44.79% for <65, 55.22% >=65
+
 gen age2=age
 label var age2 ">=65 vs <65"
 recode age2 2=1 3=1 4=1 5=1 6=1 7=2 8=2 9=2
@@ -686,7 +671,7 @@ svy: tab age2 deprive if cancer==1
 //for cancer patients only-age x sex
 //bysort sex: tab age if cancer==1 [iw=wt_new]
 //svy: tab age sex if cancer==1
-//sig dif, with men mostly in 65 to 74 age group and women in 55 to 74
+
 bysort age2: tab sex if cancer==1 [iw=wt_new]
 //sig test
 svy: tab age2 sex if cancer==1
@@ -695,22 +680,22 @@ svy: tab age2 sex if cancer==1
 //for cancer patients only-age x ethn
 //bysort ethnicity: tab age if cancer==1 [iw=wt_new]
 //svy: tab age ethnicity if cancer==1
-//sig dif, with Brits/irish mostly in 65 to 74 age group, and other ethnic groups mostly in younger age groups
+
 bysort age2: tab whiteornot if cancer==1 [iw=wt_new]
-//white mostly 65 to 74 age group, non-white mostly below 65
+
 svy: tab age2 whiteornot if cancer==1
 
 
 //for cancer patients only-age x employment
 //bysort age2: tab employment if cancer==1 [iw=wt_new]
 //svy: tab age employment if cancer==1
-//sig dif, retired older age group and other categories in younger age group
+
 
 //for cancer patients only-age x smoking
 //bysort smoking: tab age if cancer==1 [iw=wt_new]
 bysort age2: tab smoking if cancer==1 [iw=wt_new]
 svy: tab age2 smoking if cancer==1
-//sig dif, non-smokers (former) older age group than smokers 
+
 
 bysort age2: tab1 alzheimer arthritis blind copd deaf autism diabetes heart hbp kidney LD MH epi stroke other noLTC if cancer==1 [iweight= wt_new]
 
@@ -734,64 +719,60 @@ svy: tab age2  other if cancer==1
 //for cancer patients only-age x number of LTC
 //bysort numberofLTC: tab age if cancer==1 [iw=wt_new]
 //svy: tab age numberofLTC if cancer==1 
-//p<0.05 with greater number of LTC with increasing age
+
 //can't do scatter or histogram with svy or iweight
 svy: mean numberofLTC if cancer==1, over(age2)
 //shows mean numberofLTC by age 
 svy: regress numberofLTC age2 if cancer==1 
-//differences ns for age groups 25 to 34 and 35 to 44 compared to age 16-24
 
 
 //for cancer patients only-age x ADL
 bysort age2: tab ADL if cancer==1 [iw=wt_new]
 svy: tab age2 ADL if cancer==1 
-//p<0.05 Older age group's LTC reduce their ability to carry out their ADL. 
+
 
 //for cancer patients only-age x unexpected hospital stays
 //bysort hosp: tab age if cancer==1 [iw=wt_new]
 bysort age2: tab hosp if cancer==1 [iw=wt_new]
 svy: tab age2 hosp if cancer==1 
-//p<0.05//greater proportion of older patients had unexpected hospital stays
+
 
 //for cancer patients only-age x mgmt plan
 bysort age2: tab plan if cancer==1 [iw=wt_new]
 svy: tab age2 plan if cancer==1 
-//sig dif, with greater proportion of older patients given plan
+
 
 //for cancer patients only-age x no appt
 //bysort age2: tab noappt if cancer==1 [iw=wt_new]
 //svy: tab age2 noappt if cancer==1 
-//sig dif, with greater proportion of older paitents not offered a choice of an appt
+
 
 //for cancer patients only-age x went to AE when did not take appt
 //bysort er: tab age if cancer==1 [iw=wt_new]
 //svy: tab age er if cancer==1 
-//ns
+
 
 //for cancer patients only-age x appointment making experience
 bysort age2: tab exp if cancer==1 [iw=wt_new]
 svy: tab age2 exp if cancer==1
-//p<0.05, younger patients had very poor exp whereas older patients had very good experience
 
 //for cancer patients only-age x GP giving enough time
 bysort age2: tab time if cancer==1 [iw=wt_new]
 svy: tab age2 time if cancer==1
-//p<0.05, younger patients had very poor whereas older patients had very good
+
 
 //for cancer patients only-age x needs met at GP appt
 bysort age2: tab need if cancer==1 [iw=wt_new]
 svy: tab age2 need if cancer==1
-//p<0.05,  older def yes
+
 
 //for cancer patients only-age x overall experience of GP pracitce
 bysort GPexp: tab age if cancer==1 [iw=wt_new]
 svy: tab age GPexp if cancer==1
-//p<0.05, older very good
 
 //for cancer patients only-age x went to A&E when Gp closed
 bysort ERclose: tab age if cancer==1 [iw=wt_new]
 svy: tab age ERclose if cancer==1
-//ns
 
 //table 4.3 age adj OR
 
@@ -800,7 +781,6 @@ xi: svy: regress numberofLTC i.deprive*i.age if cancer==1
 //age*depr no interaction, so yes!
 //group deprive into binary variable
 tab deprive if cancer==1 [iweight= wt_new]
-//25.47% for most, 35.64% for moderately, 38.9% for least deprived
 gen dep2=deprive
 label var dep2 "least vs most/mod deprived"
 recode dep2 1=2 2=2 3=1
@@ -825,27 +805,7 @@ tab LTC q30 if cancer==1 [iweight= wt_new]
 svy: regress numberofLTC dep2 LTC if cancer==1
  bysort cancer: tab LTC [iw=wt_new]*/
 // why is cancer showing no ltc? try using q30_recoded as they convered 2 "no" into 1 "yes"
-/*
--------------------------------------------------------------------------------------------------------------------------------
--> cancer = no cancer
 
-    Any LTC |      Freq.     Percent        Cum.
-------------+-----------------------------------
-         no | 244,031.26       56.31       56.31
-        yes | 189,314.72       43.69      100.00
-------------+-----------------------------------
-      Total | 433,345.98      100.00
-
---------------------------------------------------------------------------------------------------------------------------------
--> cancer = has cancer
-
-    Any LTC |      Freq.     Percent        Cum.
-------------+-----------------------------------
-         no | 2,103.6187       16.27       16.27
-        yes | 10,826.197       83.73      100.00
-------------+-----------------------------------
-      Total | 12,929.816      100.00
-*/
 /*tab q30_recoded
 gen anyLTC=q30_recoded
 label var anyLTC "Any LTC"
@@ -873,7 +833,7 @@ svy: logistic er dep2 age2 if cancer==1
 //need to turn exp into binary
 //group exp into binary variable
 tab exp if cancer==1 [iweight= wt_new]
-//36.84% for very good, 38.2% for fairly good, 12.94% for neutral, 8.29% for fairly poor, 3.72% for very poor
+
 gen exp2=exp
 label var exp2 "very/fairly good vs neutral/fairly/very poor"
 recode exp2 1=0 2=0 3=1 4=1 5=1
@@ -1008,8 +968,6 @@ tab1 alzheimer arthritis blind copd deaf autism diabetes heart hbp kidney LD MH 
 //do more deprived still have more unexpected hospital stays after adjusting for GPs time and accessing GP appointment, age, sex, ethnicity, and LTCs
 svy: logistic hosp dep2 age2 sex MH ncLTC whiteornot exp2 time2 if cancer==1
 
-
-//STOP 
 //do cluster analysis-can we use a cluster method to group cancer patients in groups of similar characteristics (e.g. age and number of LTC, and deprivation) and  then test whether these groups have significantly different experience / outcomes. 
 //which clusters/groups have smiliar characteristics using cluster? then compare their outcomes to each other
 svy: cluster kmeans dep2 age2 sex whiteornot smoking numberofLTC hosp plan if cancer==1, k(9)
@@ -1031,13 +989,6 @@ bysort myclus1: summarize numberofLTC if cancer==1 [iw=wt_new]
 twoway dot numberofLTC myclus1
 cluster stop
 //shows graph of 3 lines of dots, and this useless table I cant intepret: 
-/*+---------------------------+
-|             |  Calinski/  |
-|  Number of  |  Harabasz   |
-|  clusters   |  pseudo-F   |
-|-------------+-------------|
-|      3      |  22517.82   |
-+---------------------------+
 K-means clustering requires all variables to be continuous. 
 Other methods that do not require all variables to be continuous, including some heirarchical clustering methods, have different assumptions
 Hierachical clustering weighted average and average clustering for mixed variables don't work due to insufficient memory*/
@@ -1084,13 +1035,8 @@ chaid time2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2  whiteorno
 //identify clusters for GP appt making
 chaid exp2 if cancer==1, minnode(20) minsplit(50) xtile(dep2 MH age2 ncLTC whiteornot sex,n(2)) svy
 //xi: svy, rrr: mlogit GPexp i.deprive age2 if cancer==1
-//when age adj, relationship is n.s for most deprived so age is a confounder for very poor exp
-/*Most deprived folks has an increased risk of very poor GP experience relative to very good experience, controlling for age 
-but the relationship is not significant (Relative risk ratio or multinomial odds ratio =1.41, p>0.05)
-However, most deprived patients have an increased risk of good gp experience relative to very good experience, age adj, and the relationship is significant
-*/
 
-//older age is less likely to have poorer GP exp relative to very good experience, controlling for deprivation 
+
 //xi: mlogit deprived i.GPexp age if cancer==1 [iw=wt_new], rrr
 
 
