@@ -4,7 +4,6 @@
 library(haven)
 library(survey)
 library(dplyr)
-library(readstata13)
 library(tidyverse)
 library(installr)
 library(forcats)
